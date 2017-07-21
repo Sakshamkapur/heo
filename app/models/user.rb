@@ -14,12 +14,17 @@ class User < ActiveRecord::Base
 end
 
 def self.from_omniauth(auth)
-	byebug
   where(provider: auth.provider, uid: auth.uid).first_or_create do |user|
     user.email = auth.info.email
     user.password = Devise.friendly_token[0,20]
+    user.oauth_token = auth.credentials.token
     user.username = auth.info.name   # assuming the user model has a name
     user.userimage = auth.info.image # assuming the user model has an image
+    user.save!
   end
-end       
+end  
+
+    def facebook
+     	@facebook ||=Koala::Facebook::API.new(oauth_token)
+    end     
 end
